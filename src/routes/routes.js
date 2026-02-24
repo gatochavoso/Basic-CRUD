@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 import { parseBody } from "../middleware/chunks.js";
 import { Response } from "../utils/status.js";
 import { filterTasks } from "../utils/filter.js";
+import { getIdFromUrl } from "../utils/router.js";
 
 const tasks = [];
 
@@ -13,13 +14,12 @@ export const routes = [
       const response = new Response(res);
 
       try {
-        const [pathUrl] = req.url.split("?");
-        const [, , id] = pathUrl.split("/");
+        const id = getIdFromUrl(req.url);
         const task = tasks.find((task) => task.id === id);
-        if (!task) {
+
+        if (!id || !task) {
           return response.error(404, "TASK NOT FOUND");
         }
-
         response.success(200, task);
       } catch (err) {
         response.error(404, err.message);
@@ -45,7 +45,6 @@ export const routes = [
       }
     },
   },
-
   {
     method: "POST",
     path: "/tasks",
@@ -58,11 +57,11 @@ export const routes = [
         if (!body.title || !body.description) {
           return response.error(400, "MUST HAVE TITLE AND DESCRIPTION");
         }
-
         const task = {
           id: uuidv4(),
           ...body,
-          createdAt: new Date().toISOString(),
+          created_at: new Date().toISOString(),
+          completed_at: null,
         };
         tasks.push(task);
         response.success(201, task);
@@ -79,15 +78,60 @@ export const routes = [
 
       try {
         const body = await parseBody(req);
-        const [pathUrl] = req.url.split("?");
-        const [, , id] = pathUrl.split("/");
+        const id = getIdFromUrl(req.url);
+
         const task = tasks.find((task) => task.id === id);
-        if (!task) {
+
+        if (!id || !task) {
           return response.error(404, "TASK NOT FOUND");
         }
 
-        Object.assign(task, body);
+        Object.assign(task, body, { updated_at: new Date().toISOString() });
         response.success(200, task);
+      } catch (err) {
+        response.error(400, err.message);
+      }
+    },
+  },
+  {
+    method: "PATCH",
+    path: "/tasks/:id/complete",
+    handler: (req, res) => {
+      const response = new Response(res);
+
+      try {
+        const id = getIdFromUrl(req.url);
+        const task = tasks.find((task) => task.id === id);
+
+        if (!id || !task) {
+          return response.error(404, "TASK NOT FOUND");
+        }
+        const completed_at = task.completed_at
+          ? null
+          : new Date().toISOString();
+        Object.assign(task, { completed_at });
+
+        response.success(200, task);
+      } catch (err) {
+        response.error(400, err.message);
+      }
+    },
+  },
+  {
+    method: "DELETE",
+    path: "/tasks/:id",
+    handler: (req, res) => {
+      const response = new Response(res);
+
+      try {
+        const id = getIdFromUrl(req.url);
+        const index = tasks.findIndex((task) => task.id === id);
+
+        if (index === -1 || !id) {
+          return response.error(404, "TASK NOT FOUND");
+        }
+        tasks.splice(index, 1);
+        response.success(200, "TASK DELETED");
       } catch (err) {
         response.error(400, err.message);
       }

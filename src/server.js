@@ -3,7 +3,7 @@ import { routes } from "./routes/routes.js";
 import { matchRoute } from "./utils/router.js";
 
 const server = http.createServer((req, res) => {
-  const [path] = req.url.split("?");
+  const [path] = req.url.split("?"); // [path] so pega o indice 0 de /tasks?title=title, sem, pegaria um array inteiro
   const route = routes.find(
     (r) => r.method === req.method && matchRoute(r.path, path),
   );
