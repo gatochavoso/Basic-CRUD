@@ -1,9 +1,12 @@
 import http from "node:http";
 import { routes } from "./routes/routes.js";
+import { matchRoute } from "./utils/router.js";
 
-export const server = http.createServer((req, res) => {
+const server = http.createServer((req, res) => {
   const [path] = req.url.split("?");
-  const route = routes.find((r) => r.method === req.method && r.path === path);
+  const route = routes.find(
+    (r) => r.method === req.method && matchRoute(r.path, path),
+  );
 
   if (route) {
     return route.handler(req, res);

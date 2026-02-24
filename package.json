@@ -2,9 +2,9 @@
   "name": "challenge-01",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "dev": "node --watch src/index.js"
+    "dev": "node --watch src/server.js"
   },
   "keywords": [],
   "author": "",
