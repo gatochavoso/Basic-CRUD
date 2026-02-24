@@ -8,11 +8,15 @@ export async function parseBody(req) {
       try {
         const body = Buffer.concat(chunks).toString("utf-8");
         const parsed = JSON.parse(body);
-        
-        if (parsed === null || Array.isArray(parsed) || typeof parsed !== "object") {
+
+        if (
+          parsed === null ||
+          Array.isArray(parsed) ||
+          typeof parsed !== "object"
+        ) {
           return reject(new Error("INVALID BODY"));
         }
-        
+
         resolve(parsed);
       } catch (err) {
         reject(new Error("INVALID JSON"));

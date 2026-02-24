@@ -13,13 +13,12 @@ export const routes = [
       try {
         const url = new URL(req.url, `http://${req.headers.host}`);
         const titleFilter = url.searchParams.get("title");
-        let filteredTasks = tasks
+        let filteredTasks = tasks;
         if (titleFilter) {
-          filteredTasks = tasks.filter(task => {
-            return task.title.includes(titleFilter)
-          })
+          filteredTasks = tasks.filter((task) => {
+            return task.title.includes(titleFilter);
+          });
         }
-
         response.success(200, filteredTasks);
       } catch {
         response.error(404, "ROUTE NOT FOUND");

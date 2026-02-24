@@ -7,10 +7,6 @@ export class Response {
     this.res.writeHead(status, this.headers);
     this.res.end(JSON.stringify(data));
   }
-  update(status, data) {
-    
-    
-  }
   error(status, message) {
     this.res.writeHead(status, this.headers);
     this.res.end(JSON.stringify({ error: message }));
