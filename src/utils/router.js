@@ -6,7 +6,7 @@ export function matchRoute(routePath, reqUrl) {
 
   return regex.test(reqUrl);
 }
-
+// extrai id da url
 export function getIdFromUrl(url) {
     const [pathUrl] = url.split("?")
     const [, , id] = pathUrl.split("/")

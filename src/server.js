@@ -1,6 +1,17 @@
 import http from "node:http";
-import { routes } from "./routes/routes.js";
+import { routes, tasks } from "./routes/routes.js";
 import { matchRoute } from "./utils/router.js";
+import { importTasks } from "./utils/import.js";
+import fs from "node:fs/promises";
+
+fs.readFile("tasks.json", "utf8")
+  .then((data) => {
+    const savedTasks = JSON.parse(data);
+    tasks.push(...savedTasks);
+  })
+  .catch(() => {
+    fs.writeFile("tasks.json", JSON.stringify([]));
+  });
 
 const server = http.createServer((req, res) => {
   const [path] = req.url.split("?"); // [path] so pega o indice 0 de /tasks?title=title, sem, pegaria um array inteiro
@@ -18,4 +29,5 @@ const server = http.createServer((req, res) => {
 
 server.listen(3333, () => {
   console.log("SERVER RUNNING");
+  importTasks();
 });

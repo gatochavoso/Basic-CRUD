@@ -3,8 +3,9 @@ import { parseBody } from "../middleware/chunks.js";
 import { Response } from "../utils/status.js";
 import { filterTasks } from "../utils/filter.js";
 import { getIdFromUrl } from "../utils/router.js";
+import { saveTasks } from "../utils/database.js";
 
-const tasks = [];
+export const tasks = [];
 
 export const routes = [
   {
@@ -63,7 +64,13 @@ export const routes = [
           created_at: new Date().toISOString(),
           completed_at: null,
         };
+
+        const exists = tasks.find((task) => task.title === body.title);
+        if (exists) {
+          return response.error(409, "TASK ALREADY EXISTS");
+        }
         tasks.push(task);
+        saveTasks(tasks)
         response.success(201, task);
       } catch (err) {
         response.error(400, err.message);
@@ -87,6 +94,7 @@ export const routes = [
         }
 
         Object.assign(task, body, { updated_at: new Date().toISOString() });
+        saveTasks(tasks)
         response.success(200, task);
       } catch (err) {
         response.error(400, err.message);
@@ -110,7 +118,7 @@ export const routes = [
           ? null
           : new Date().toISOString();
         Object.assign(task, { completed_at });
-
+        saveTasks(tasks)
         response.success(200, task);
       } catch (err) {
         response.error(400, err.message);
@@ -131,6 +139,7 @@ export const routes = [
           return response.error(404, "TASK NOT FOUND");
         }
         tasks.splice(index, 1);
+        saveTasks(tasks)
         response.success(200, "TASK DELETED");
       } catch (err) {
         response.error(400, err.message);

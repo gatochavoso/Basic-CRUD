@@ -9,6 +9,7 @@ export async function parseBody(req) {
         const body = Buffer.concat(chunks).toString("utf-8");
         const parsed = JSON.parse(body);
 
+        // valida se body e um objeto valido
         if (
           parsed === null ||
           Array.isArray(parsed) ||
