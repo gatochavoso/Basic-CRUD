@@ -1,4 +1,4 @@
-export function matchRoute(routePath, reqUrl) {
+export function matchRoute(routePath: string, reqUrl: string) {
   // substitui os parametros da rota (ex: :id) por um grupo regex que aceita letras, numeros, underscore e hifen
   const regexPath = routePath.replace(/:(\w+)/g, "([\\w-]+)");
   // cria a regex garantindo que a URL começa e termina exatamente com o padrao da rota
@@ -7,8 +7,8 @@ export function matchRoute(routePath, reqUrl) {
   return regex.test(reqUrl);
 }
 // extrai id da url
-export function getIdFromUrl(url) {
-    const [pathUrl] = url.split("?")
-    const [, , id] = pathUrl.split("/")
-    return id
+export function getIdFromUrl(url: string): string | undefined {
+  const [pathUrl] = url.split("?");
+  const [, , id] = pathUrl!.split("/"); // to falando por ts: confia que nao e undefined
+  return id;
 }

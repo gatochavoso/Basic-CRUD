@@ -1,9 +1,15 @@
-export async function parseBody(req) {
-  const chunks = [];
+import { IncomingMessage } from "node:http";
+
+export async function parseBody(
+  req: IncomingMessage,
+): Promise<Record<string, unknown>> {
+  const chunks: Buffer[] = [];
+
   return new Promise((resolve, reject) => {
-    req.on("data", (chunk) => {
+    req.on("data", (chunk: Buffer) => {
       chunks.push(chunk);
     });
+
     req.on("end", () => {
       try {
         const body = Buffer.concat(chunks).toString("utf-8");

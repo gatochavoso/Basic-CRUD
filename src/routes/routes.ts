@@ -4,10 +4,12 @@ import { Response } from "../utils/status.js";
 import { filterTasks } from "../utils/filter.js";
 import { getIdFromUrl } from "../utils/router.js";
 import { saveTasks } from "../utils/database.js";
+import type { Route, Task } from "../types.js";
+import { getErrorMessage } from "../utils/errors.js";
 
-export const tasks = [];
+export const tasks: Task[] = [];
 
-export const routes = [
+export const routes: Route[] = [
   {
     method: "GET",
     path: "/tasks/:id",
@@ -15,7 +17,7 @@ export const routes = [
       const response = new Response(res);
 
       try {
-        const id = getIdFromUrl(req.url);
+        const id = getIdFromUrl(req.url!);
         const task = tasks.find((task) => task.id === id);
 
         if (!id || !task) {
@@ -23,7 +25,7 @@ export const routes = [
         }
         response.success(200, task);
       } catch (err) {
-        response.error(404, err.message);
+        response.error(404, getErrorMessage(err));
       }
     },
   },
@@ -34,7 +36,7 @@ export const routes = [
       const response = new Response(res);
 
       try {
-        const url = new URL(req.url, `http://${req.headers.host}`);
+        const url = new URL(req.url!, `http://${req.headers.host}`);
         const filters = {
           title: url.searchParams.get("title"),
           description: url.searchParams.get("description"),
@@ -53,14 +55,15 @@ export const routes = [
       const response = new Response(res);
 
       try {
-        const body = await parseBody(req);
+        const body: Record<string, unknown> = await parseBody(req);
 
         if (!body.title || !body.description) {
           return response.error(400, "MUST HAVE TITLE AND DESCRIPTION");
         }
         const task = {
           id: uuidv4(),
-          ...body,
+          title: body.title as string,
+          description: body.description as string,
           created_at: new Date().toISOString(),
           completed_at: null,
         };
@@ -70,10 +73,10 @@ export const routes = [
           return response.error(409, "TASK ALREADY EXISTS");
         }
         tasks.push(task);
-        saveTasks(tasks)
+        saveTasks(tasks);
         response.success(201, task);
       } catch (err) {
-        response.error(400, err.message);
+        response.error(400, getErrorMessage(err));
       }
     },
   },
@@ -85,7 +88,7 @@ export const routes = [
 
       try {
         const body = await parseBody(req);
-        const id = getIdFromUrl(req.url);
+        const id = getIdFromUrl(req.url!);
 
         const task = tasks.find((task) => task.id === id);
 
@@ -94,10 +97,10 @@ export const routes = [
         }
 
         Object.assign(task, body, { updated_at: new Date().toISOString() });
-        saveTasks(tasks)
+        saveTasks(tasks);
         response.success(200, task);
       } catch (err) {
-        response.error(400, err.message);
+        response.error(400, getErrorMessage);
       }
     },
   },
@@ -108,7 +111,7 @@ export const routes = [
       const response = new Response(res);
 
       try {
-        const id = getIdFromUrl(req.url);
+        const id = getIdFromUrl(req.url!);
         const task = tasks.find((task) => task.id === id);
 
         if (!id || !task) {
@@ -118,10 +121,10 @@ export const routes = [
           ? null
           : new Date().toISOString();
         Object.assign(task, { completed_at });
-        saveTasks(tasks)
+        saveTasks(tasks);
         response.success(200, task);
       } catch (err) {
-        response.error(400, err.message);
+        response.error(400, getErrorMessage(err));
       }
     },
   },
@@ -132,17 +135,17 @@ export const routes = [
       const response = new Response(res);
 
       try {
-        const id = getIdFromUrl(req.url);
+        const id = getIdFromUrl(req.url!);
         const index = tasks.findIndex((task) => task.id === id);
 
         if (index === -1 || !id) {
           return response.error(404, "TASK NOT FOUND");
         }
         tasks.splice(index, 1);
-        saveTasks(tasks)
+        saveTasks(tasks);
         response.success(200, "TASK DELETED");
       } catch (err) {
-        response.error(400, err.message);
+        response.error(400, getErrorMessage(err));
       }
     },
   },

@@ -1,8 +1,9 @@
 import fs from "node:fs/promises";
 import { parse } from "csv-parse";
+import type { csvRecord } from "../types.js";
 
 export function importTasks() {
-  let records = [];
+  let records: csvRecord[] = [];
 
   const parser = parse({
     delimiter: ",",

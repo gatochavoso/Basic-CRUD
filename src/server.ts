@@ -3,10 +3,11 @@ import { routes, tasks } from "./routes/routes.js";
 import { matchRoute } from "./utils/router.js";
 import { importTasks } from "./utils/import.js";
 import fs from "node:fs/promises";
+import type { Task } from "./types.js";
 
 fs.readFile("tasks.json", "utf8")
   .then((data) => {
-    const savedTasks = JSON.parse(data);
+    const savedTasks: Task[] = JSON.parse(data);
     tasks.push(...savedTasks);
   })
   .catch(() => {
@@ -14,9 +15,9 @@ fs.readFile("tasks.json", "utf8")
   });
 
 const server = http.createServer((req, res) => {
-  const [path] = req.url.split("?"); // [path] so pega o indice 0 de /tasks?title=title, sem, pegaria um array inteiro
+  const [path] = req.url!.split("?"); // [path] so pega o indice 0 de /tasks?title=title, sem, pegaria um array inteiro
   const route = routes.find(
-    (r) => r.method === req.method && matchRoute(r.path, path),
+    (r) => r.method === req.method && matchRoute(r.path, path ?? ""),
   );
 
   if (route) {
